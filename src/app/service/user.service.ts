@@ -3,13 +3,14 @@ import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 import {catchError, Observable, tap, throwError} from "rxjs";
 import {CustomHttpResponse, Profile} from "../interface/appstates";
 import {User} from "../interface/user";
+import {Key} from "../enum/Key.enum";
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  private readonly server: string = 'http://localhost:8080';
+  private readonly server: string = 'http://192.168.1.44:8080';
 
 
   constructor(private http: HttpClient) {
@@ -21,7 +22,7 @@ export class UserService {
       .pipe(
         tap(console.log),
         catchError(this.handleError)
-      )
+      );
 
 
   verifyCode$ = (email: string, code: string) => <Observable<CustomHttpResponse<Profile>>>
@@ -30,30 +31,64 @@ export class UserService {
       .pipe(
         tap(console.log),
         catchError(this.handleError)
-      )
+      );
 
 
   profile$ = () => <Observable<CustomHttpResponse<Profile>>>
     this.http.get<CustomHttpResponse<Profile>>
-    (`${this.server}/user/profile`,{headers: new HttpHeaders().set("Authorization",
-        "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUkVTIiwiYXVkIjoiQ1VTVE9NRVJfTUFOQUdFTUVOVF9TRVJWSUNFIiwiaWF0IjoxNjkwOTQxMDg1LCJzdWIiOiI0IiwiYXV0aG9yaXRpZXMiOlsiUkVBRDpVU0VSIiwiUkVBRDpDVVNUT01FUiIsIlVQREFURTpVU0VSIiwiVVBEQVRFOkNVU1RPTUVSIiwiQ1JFQVRFOlVTRVIiLCJDUkVBVEU6Q1VTVE9NRVIiXSwiZXhwIjoxNjkwOTQyODg1fQ.Oo6Rcn28oEB3ejtRHKWsJkY4RoASQ7XDswNLKIAQLKTbcX59uIlKvY5Db-hCrRBjKw343z3MOAdgvtkvOnVBxA")})
-      .pipe(
+    (`${this.server}/user/profile`,).pipe(
         tap(console.log),
         catchError(this.handleError)
-      )
+      );
 
 
   update$ = (user: User) => <Observable<CustomHttpResponse<Profile>>>
     this.http.patch<CustomHttpResponse<Profile>>
-    (`${this.server}/user/update`, user,{headers: new HttpHeaders().set("Authorization",
-        "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUkVTIiwiYXVkIjoiQ1VTVE9NRVJfTUFOQUdFTUVOVF9TRVJWSUNFIiwiaWF0IjoxNjkwOTQxMDg1LCJzdWIiOiI0IiwiYXV0aG9yaXRpZXMiOlsiUkVBRDpVU0VSIiwiUkVBRDpDVVNUT01FUiIsIlVQREFURTpVU0VSIiwiVVBEQVRFOkNVU1RPTUVSIiwiQ1JFQVRFOlVTRVIiLCJDUkVBVEU6Q1VTVE9NRVIiXSwiZXhwIjoxNjkwOTQyODg1fQ.Oo6Rcn28oEB3ejtRHKWsJkY4RoASQ7XDswNLKIAQLKTbcX59uIlKvY5Db-hCrRBjKw343z3MOAdgvtkvOnVBxA")})
+    (`${this.server}/user/update`, user).pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
+
+  refreshToken$ = () => <Observable<CustomHttpResponse<Profile>>>
+    this.http.get<CustomHttpResponse<Profile>>
+    (`${this.server}/user/refresh/token`, {headers: {Authorization: `Bearer ${localStorage.getItem(Key.REFRESH_TOKEN)}`}})
+      .pipe(
+      tap(response => {
+        console.log(response);
+        localStorage.removeItem(Key.TOKEN);
+        localStorage.removeItem(Key.REFRESH_TOKEN);
+        localStorage.setItem(Key.TOKEN, response.data.access_token);
+        localStorage.setItem(Key.REFRESH_TOKEN, response.data.refresh_token);
+      }),
+      catchError(this.handleError)
+    );
+
+  updatePassword$ = (form: {currentPassword: string, newPassword: string, confirmNewPassword:string}) => <Observable<CustomHttpResponse<Profile>>>
+    this.http.patch<CustomHttpResponse<Profile>>
+    (`${this.server}/user/update/password`, form)
       .pipe(
         tap(console.log),
         catchError(this.handleError)
-      )
+      );
 
+  updateUserRole$ = (form:{ roleName: string}) => <Observable<CustomHttpResponse<Profile>>>
+    this.http.patch<CustomHttpResponse<Profile>>
+    (`${this.server}/user/update/role`, form)
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
+
+  updateAccountSettings$ = (settings:{ enabled: boolean, notLocked: boolean}) => <Observable<CustomHttpResponse<Profile>>>
+    this.http.patch<CustomHttpResponse<Profile>>
+    (`${this.server}/user/update/settings`, settings)
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
 
   handleError(error: HttpErrorResponse): Observable<never> {
+    console.log(error)
     let errorMessage: string;
     if (error.error instanceof ErrorEvent) {
       errorMessage = `A client error occurred - ${error.error.message}`;
