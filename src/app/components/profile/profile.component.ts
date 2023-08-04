@@ -7,6 +7,7 @@ import {NgForm} from "@angular/forms";
 import {Key} from "../../enum/Key.enum";
 import {DataState} from "../../enum/datastate.enum";
 import {State} from "../../interface/state";
+import {EventType} from "../../enum/event-type.enum";
 
 @Component({
   selector: 'app-profile',
@@ -19,7 +20,12 @@ export class ProfileComponent implements OnInit{
   private dataSubject = new BehaviorSubject<CustomHttpResponse<Profile>| null>(null);
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
+  private showLogsSubject = new BehaviorSubject<boolean>(true);
+  showLogs$ = this.showLogsSubject.asObservable();
   readonly DataState = DataState;
+  readonly EventType = EventType;
+
+
 
   constructor(private userService:UserService) {}
 
@@ -63,6 +69,7 @@ export class ProfileComponent implements OnInit{
       this.profileState$ = this.userService.updatePassword$(passwordForm.value)
         .pipe(
           map(response =>{
+            this.dataSubject.next({...response, data: response.data});
             passwordForm.reset();
             this.isLoadingSubject.next(false);
             return {dataState: DataState.LOADED,appData: this.dataSubject.value};
@@ -121,7 +128,55 @@ export class ProfileComponent implements OnInit{
   }
 
 
+  toggleMfa(): void {
+    this.isLoadingSubject.next(true);
+    this.profileState$ = this.userService.toggleMfa$()
+      .pipe(
+        map(response =>{
+          this.dataSubject.next({...response, data: response.data});
+          this.isLoadingSubject.next(false);
+          return {dataState: DataState.LOADED,appData: this.dataSubject.value};
+        }),
+        startWith({dataState: DataState.LOADED,appData: this.dataSubject.value}),
+        catchError((error: string)=>{
+          console.log(error)
+          this.isLoadingSubject.next(false);
+          return of({dataState: DataState.LOADED,appData: this.dataSubject.value, error})
+        })
+      )
+  }
 
+  updateImage(image: File): void {
+    if (image){
+      this.isLoadingSubject.next(true);
+      this.profileState$ = this.userService.updateImage$(this.getFormData(image))
+        .pipe(
+          map(response =>{
+            this.dataSubject.next(
+              {...response,
+                data: {...response.data,
+                  user: {...response.data.user,
+                    imageUrl:`${response.data.user.imageUrl}?time=${new Date().getTime()}`}}});
+            this.isLoadingSubject.next(false);
+            return {dataState: DataState.LOADED,appData: this.dataSubject.value};
+          }),
+          startWith({dataState: DataState.LOADED,appData: this.dataSubject.value}),
+          catchError((error: string)=>{
+            console.log(error)
+            this.isLoadingSubject.next(false);
+            return of({dataState: DataState.LOADED,appData: this.dataSubject.value, error})
+          })
+        )
+    }
+  }
 
+  toggleLogs(): void {
+    this.showLogsSubject.next(!this.showLogsSubject.value);
+  }
 
+  private getFormData(image: File): FormData {
+    const formData = new FormData();
+    formData.append('image',image);
+    return formData;
+  }
 }

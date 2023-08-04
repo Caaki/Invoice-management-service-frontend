@@ -8,6 +8,7 @@ import {CustomerComponent} from "./components/customer/customer.component";
 import {ProfileComponent} from "./components/profile/profile.component";
 import {CustomersComponent} from "./components/customers/customers.component";
 import {HomeComponent} from "./components/home/home.component";
+import {AuthenticationGuard} from "./guard/authentication.guard";
 
 const routes: Routes = [
   {path:'login',component: LoginComponent},
@@ -15,11 +16,11 @@ const routes: Routes = [
   {path:'resetpassword',component: ResetpasswordComponent},
   {path:'user/verify/account/:key',component: VerifyComponent},
   {path:'user/verify/password/:key',component: VerifyComponent},
-  {path:'customer',component: CustomersComponent},
-  {path:'profile',component: ProfileComponent},
-  {path:'',component: HomeComponent},
+  {path:'customer',component: CustomersComponent, canActivate: [AuthenticationGuard]},
+  {path:'profile',component: ProfileComponent,canActivate: [AuthenticationGuard]},
+  {path:'',component: HomeComponent, canActivate: [AuthenticationGuard]},
   {path:'',redirectTo:'/', pathMatch:'full'},
-  {path:'**',component: HomeComponent},
+  {path:'**',component: HomeComponent,canActivate: [AuthenticationGuard] },
 ];
 
 @NgModule({

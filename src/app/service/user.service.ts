@@ -1,15 +1,16 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
-import {catchError, Observable, tap, throwError} from "rxjs";
+import {catchError, map, Observable, switchMap, tap, throwError} from "rxjs";
 import {CustomHttpResponse, Profile} from "../interface/appstates";
 import {User} from "../interface/user";
 import {Key} from "../enum/Key.enum";
+import {JwtHelperService} from "@auth0/angular-jwt";
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-
+  private jwtHelper = new JwtHelperService();
   private readonly server: string = 'http://192.168.1.44:8080';
 
 
@@ -54,7 +55,6 @@ export class UserService {
     (`${this.server}/user/refresh/token`, {headers: {Authorization: `Bearer ${localStorage.getItem(Key.REFRESH_TOKEN)}`}})
       .pipe(
       tap(response => {
-        console.log(response);
         localStorage.removeItem(Key.TOKEN);
         localStorage.removeItem(Key.REFRESH_TOKEN);
         localStorage.setItem(Key.TOKEN, response.data.access_token);
@@ -68,6 +68,7 @@ export class UserService {
     (`${this.server}/user/update/password`, form)
       .pipe(
         tap(console.log),
+
         catchError(this.handleError)
       );
 
@@ -76,6 +77,11 @@ export class UserService {
     (`${this.server}/user/update/role`, form)
       .pipe(
         tap(console.log),
+        switchMap(response => {
+          return this.refreshToken$().pipe(
+            map(() => response)
+          );
+        }),
         catchError(this.handleError)
       );
 
@@ -86,6 +92,34 @@ export class UserService {
         tap(console.log),
         catchError(this.handleError)
       );
+
+
+  toggleMfa$ = () => <Observable<CustomHttpResponse<Profile>>>
+    this.http.patch<CustomHttpResponse<Profile>>
+    (`${this.server}/user/toggleMfa`,{})
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
+
+  updateImage$ = (formData: FormData) => <Observable<CustomHttpResponse<Profile>>>
+    this.http.patch<CustomHttpResponse<Profile>>
+    (`${this.server}/user/update/image`,formData)
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
+
+  logOut() {
+    localStorage.removeItem(Key.TOKEN);
+    localStorage.removeItem(Key.REFRESH_TOKEN);
+  }
+
+  isAuthenticated = (): boolean =>
+    (this.jwtHelper.decodeToken<string>(localStorage.getItem(Key.TOKEN))
+      && !this.jwtHelper.isTokenExpired(localStorage.getItem(Key.TOKEN)))
+  ? true : false;
+
 
   handleError(error: HttpErrorResponse): Observable<never> {
     console.log(error)
@@ -101,4 +135,6 @@ export class UserService {
     }
     return throwError(() => errorMessage);
   }
+
+
 }
