@@ -16,6 +16,10 @@ import { CustomersComponent } from './components/customers/customers.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { StatsComponent } from './components/stats/stats.component';
 import {TokenInterceptor} from "./interceptor/token.interceptor";
+import { NewinvoiceComponent } from './components/newinvoice/newinvoice.component';
+import { InvoicesComponent } from './components/invoices/invoices.component';
+import { InvoiceComponent } from './components/invoice/invoice.component';
+import { NewCustomerComponent } from './components/new-customer/new-customer.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +33,11 @@ import {TokenInterceptor} from "./interceptor/token.interceptor";
     HomeComponent,
     CustomersComponent,
     NavbarComponent,
-    StatsComponent
+    StatsComponent,
+    NewinvoiceComponent,
+    InvoicesComponent,
+    InvoiceComponent,
+    NewCustomerComponent
   ],
   imports: [
     BrowserModule,

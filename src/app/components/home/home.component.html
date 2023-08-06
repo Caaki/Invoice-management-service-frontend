@@ -1,7 +1,7 @@
 <ng-container *ngIf="(homeState$ | async) as state">
   <ng-container>
     <app-navbar [user]="state?.appData?.data?.user"></app-navbar>
-    <app-stats></app-stats>
+    <app-stats [statics]="state?.appData?.data?.statistics"></app-stats>
     <section>
       <div class="container">
         <div class="row mt-3">

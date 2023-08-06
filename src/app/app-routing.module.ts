@@ -9,6 +9,10 @@ import {ProfileComponent} from "./components/profile/profile.component";
 import {CustomersComponent} from "./components/customers/customers.component";
 import {HomeComponent} from "./components/home/home.component";
 import {AuthenticationGuard} from "./guard/authentication.guard";
+import {NewCustomerComponent} from "./components/new-customer/new-customer.component";
+import {InvoicesComponent} from "./components/invoices/invoices.component";
+import {NewinvoiceComponent} from "./components/newinvoice/newinvoice.component";
+import {InvoiceComponent} from "./components/invoice/invoice.component";
 
 const routes: Routes = [
   {path:'login',component: LoginComponent},
@@ -16,8 +20,13 @@ const routes: Routes = [
   {path:'resetpassword',component: ResetpasswordComponent},
   {path:'user/verify/account/:key',component: VerifyComponent},
   {path:'user/verify/password/:key',component: VerifyComponent},
-  {path:'customer',component: CustomersComponent, canActivate: [AuthenticationGuard]},
   {path:'profile',component: ProfileComponent,canActivate: [AuthenticationGuard]},
+  {path:'customers',component: CustomersComponent, canActivate: [AuthenticationGuard]},
+  {path:'customers/new',component: NewCustomerComponent, canActivate: [AuthenticationGuard]},
+  {path:'customers/:id',component: CustomerComponent, canActivate: [AuthenticationGuard]},
+  {path:'invoices',component: InvoicesComponent, canActivate: [AuthenticationGuard]},
+  {path:'invoices/new',component: NewinvoiceComponent, canActivate: [AuthenticationGuard]},
+  {path:'invoices/:id/:invoiceNumber',component: InvoiceComponent, canActivate: [AuthenticationGuard]},
   {path:'',component: HomeComponent, canActivate: [AuthenticationGuard]},
   {path:'',redirectTo:'/', pathMatch:'full'},
   {path:'**',component: HomeComponent,canActivate: [AuthenticationGuard] },
