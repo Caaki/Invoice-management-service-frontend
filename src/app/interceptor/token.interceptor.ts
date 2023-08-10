@@ -35,10 +35,8 @@ export class TokenInterceptor implements HttpInterceptor {
       request.url.includes(path));
     if (isAllowedPath)
     {
-      console.log("ALLOWED")
       return next.handle(request);
     }else{
-      console.log("INTERCEPTED: " + request.url)
       return next.handle(this.addAuthorizationTokenHeader(request, localStorage.getItem(Key.TOKEN)))
         .pipe(
           catchError((error: HttpErrorResponse) => {

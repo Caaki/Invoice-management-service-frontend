@@ -69,7 +69,7 @@ export class HomeComponent implements OnInit {
 
   }
 
-  // selectCustomer(id: string): void{
-  //   this.router.navigate([`customers/${id}`])
-  // }
+  report(): void{
+
+  }
 }

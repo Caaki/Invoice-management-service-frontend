@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {JwtHelperService} from "@auth0/angular-jwt";
-import {HttpClient, HttpErrorResponse} from "@angular/common/http";
+import {HttpClient, HttpErrorResponse, HttpEvent} from "@angular/common/http";
 import {catchError, Observable, tap, throwError} from "rxjs";
 import {CustomerState, CustomHttpResponse, Page} from "../interface/appstates";
 import {User} from "../interface/user";
@@ -69,7 +69,7 @@ export class CustomerService {
         catchError(this.handleError)
       );
   createInvoice$ = (customerId: number, invoice: Invoice) => <Observable<CustomHttpResponse<User & Customer[]>>>
-    this.http.put<CustomHttpResponse<User & Customer[]>>
+    this.http.post<CustomHttpResponse<User & Customer[]>>
     (`${this.server}/customer/invoice/addtocustomer/${customerId}`, invoice)
       .pipe(
         tap(console.log),
@@ -87,6 +87,14 @@ export class CustomerService {
   invoice$ = (invoiceId: string) => <Observable<CustomHttpResponse<Customer & Invoice & User>>>
     this.http.get<CustomHttpResponse<Customer & Invoice & User>>
     (`${this.server}/customer/invoice/get/${invoiceId}`)
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
+
+  downloadReport$ = () => <Observable<HttpEvent<Blob>>>
+    this.http.get(`${this.server}/customer/download/report/`,
+      {reportProgress: true, observe:'events', responseType:'blob'})
       .pipe(
         tap(console.log),
         catchError(this.handleError)

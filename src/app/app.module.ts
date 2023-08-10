@@ -21,6 +21,8 @@ import { InvoicesComponent } from './components/invoices/invoices.component';
 import { InvoiceComponent } from './components/invoice/invoice.component';
 import { NewCustomerComponent } from './components/new-customer/new-customer.component';
 import {ExtractArrayValuePipe} from './pipe/extractvalue.pipe';
+import {HttpCacheService} from "./service/http-cache.service";
+import {CacheInterceptor} from "./interceptor/cache.interceptor";
 
 @NgModule({
   declarations: [
@@ -47,7 +49,10 @@ import {ExtractArrayValuePipe} from './pipe/extractvalue.pipe';
     HttpClientModule,
     FormsModule
   ],
-  providers: [{provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true}],
+  providers: [
+    {provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: CacheInterceptor, multi: true}
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
