@@ -1,13 +1,15 @@
 import {Component, OnInit} from '@angular/core';
 import {BehaviorSubject, catchError, map, Observable, of, startWith} from "rxjs";
 import {State} from "../../interface/state";
-import {CustomHttpResponse, Page, Profile} from "../../interface/appstates";
+import {CustomHttpResponse, Page} from "../../interface/appstates";
 import {UserService} from "../../service/user.service";
 import {CustomerService} from "../../service/customer.service";
 import {DataState} from "../../enum/datastate.enum";
 import {User} from "../../interface/user";
 import {Customer} from "../../interface/customer";
 import {Router} from "@angular/router";
+import {HttpEvent, HttpEventType, HttpHeaders, HttpResponse} from "@angular/common/http";
+import {saveAs} from 'file-saver'
 
 @Component({
   selector: 'app-home',
@@ -22,6 +24,8 @@ export class HomeComponent implements OnInit {
   isLoading$ = this.isLoadingSubject.asObservable();
   private showLogsSubject = new BehaviorSubject<boolean>(true);
   showLogs$ = this.showLogsSubject.asObservable();
+  private fileStatusSubject = new BehaviorSubject<{ status: string, type: string, percent: number }>(undefined);
+  fileStatus$ = this.fileStatusSubject.asObservable();
   readonly DataState = DataState;
 
   private currentPageSubject = new BehaviorSubject<number>(0);
@@ -48,7 +52,7 @@ export class HomeComponent implements OnInit {
       )
   }
 
-  goToPage(pageNumber?: number): void{
+  goToPage(pageNumber?: number): void {
     this.homeState$ = this.customerService.customers$(pageNumber)
       .pipe(
         map(response => {
@@ -63,13 +67,54 @@ export class HomeComponent implements OnInit {
       )
   }
 
-  goToNextOrPreviousPage(direction?: string):void{
+  goToNextOrPreviousPage(direction?: string): void {
 
-    this.goToPage(direction ==='forward'? this.currentPageSubject.value +1 : this.currentPageSubject.value -1);
+    this.goToPage(direction === 'forward' ? this.currentPageSubject.value + 1 : this.currentPageSubject.value - 1);
 
   }
 
-  report(): void{
+  report(): void {
+    this.homeState$ = this.customerService.downloadReport$()
+      .pipe(
+        map(response => {
+          console.log(response);
+          this.reportProgress(response);
+          return {dataState: DataState.LOADED, appData: this.dataSubject.value};
+        }),
+        startWith({dataState: DataState.LOADED, appData: this.dataSubject.value}),
+        catchError((error: string) => {
+          return of({dataState: DataState.ERROR, error, appData: this.dataSubject.value})
+        })
+      )
+  }
 
+  private reportProgress(httpEvent: HttpEvent<Blob | string [] & number>): void {
+
+    switch (httpEvent.type) {
+      case HttpEventType.DownloadProgress :
+        this.fileStatusSubject.next({
+          status: 'progress',
+          type: "Downloading...",
+          percent: Math.round(100 * httpEvent.loaded / httpEvent.total)
+        })
+        break;
+
+      case HttpEventType.ResponseHeader :
+        console.log("Headers retrieved {}", httpEvent);
+        break;
+
+      case HttpEventType.Response:
+        saveAs(
+          new File(
+            [<Blob>httpEvent.body],
+            httpEvent.headers.get("File-Name"),
+            {type: `${httpEvent.headers.get('Content-Type')};charset=utf-8`}))
+        this.fileStatusSubject.next(undefined)
+        break;
+
+      default:
+        console.log(httpEvent);
+        break;
+    }
   }
 }

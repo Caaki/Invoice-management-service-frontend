@@ -30,7 +30,7 @@ export class CacheInterceptor implements HttpInterceptor {
 
     }else if (request.method !== 'GET' || request.url.includes("download")){
       this.httpCache.evictAll();
-
+      return next.handle(request);
     } else{
       const cachedResponse: HttpResponse<any> = this.httpCache.get(request.url);
       if (cachedResponse){

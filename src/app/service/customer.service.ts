@@ -93,7 +93,7 @@ export class CustomerService {
       );
 
   downloadReport$ = () => <Observable<HttpEvent<Blob>>>
-    this.http.get(`${this.server}/customer/download/report/`,
+    this.http.get(`${this.server}/customer/download/report`,
       {reportProgress: true, observe:'events', responseType:'blob'})
       .pipe(
         tap(console.log),
