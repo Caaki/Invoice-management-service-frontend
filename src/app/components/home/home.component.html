@@ -49,7 +49,9 @@
                 </td>
                 <td>{{customer.type}}</td>
                 <td>
-                  <button type="button" (click)="selectCustomer(customer)" class="btn btn-info">View</button>
+<!--                  <button type="button" (click)="selectCustomer(customer.id)" class="btn btn-info">View</button>-->
+                  <button type="button" [routerLink]="['/customers', customer.id]" class="btn btn-info">View</button>
+
                 </td>
               </tr>
               </tbody>
@@ -62,7 +64,7 @@
                   <a (click)="goToNextOrPreviousPage('backwards')"
                     class="page-link">&laquo; Prev</a>
                 </li>
-                <li *ngFor="let pageNumber of [].constructor(state?.appData?.data.page.totalPages);
+                <li  *ngFor="let pageNumber of state?.appData?.data?.page.totalPages | ExtractArrayValue: 'number';
                     let i = index;
                     " class="page-item pointer">
                   <a (click)="goToPage(i)"

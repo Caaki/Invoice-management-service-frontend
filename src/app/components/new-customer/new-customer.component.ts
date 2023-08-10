@@ -23,6 +23,8 @@ export class NewCustomerComponent implements OnInit {
   readonly DataState = DataState;
 
 
+
+
   constructor(private customerService: CustomerService, private userService:UserService) {
   }
 

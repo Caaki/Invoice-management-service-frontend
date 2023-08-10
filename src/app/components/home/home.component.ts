@@ -7,6 +7,7 @@ import {CustomerService} from "../../service/customer.service";
 import {DataState} from "../../enum/datastate.enum";
 import {User} from "../../interface/user";
 import {Customer} from "../../interface/customer";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-home',
@@ -15,8 +16,8 @@ import {Customer} from "../../interface/customer";
 })
 export class HomeComponent implements OnInit {
 
-  homeState$: Observable<State<CustomHttpResponse<Page & User>>>;
-  private dataSubject = new BehaviorSubject<CustomHttpResponse<Page & User>>(null);
+  homeState$: Observable<State<CustomHttpResponse<Page<Customer> & User>>>;
+  private dataSubject = new BehaviorSubject<CustomHttpResponse<Page<Customer> & User>>(null);
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
   private showLogsSubject = new BehaviorSubject<boolean>(true);
@@ -27,7 +28,9 @@ export class HomeComponent implements OnInit {
   currentPage$ = this.currentPageSubject.asObservable();
 
 
-  constructor(private userService: UserService, private customerService: CustomerService) {
+  constructor(private userService: UserService,
+              private customerService: CustomerService,
+              private router: Router) {
   }
 
   ngOnInit(): void {
@@ -66,7 +69,7 @@ export class HomeComponent implements OnInit {
 
   }
 
-  selectCustomer(customer: Customer): void{
-
-  }
+  // selectCustomer(id: string): void{
+  //   this.router.navigate([`customers/${id}`])
+  // }
 }
