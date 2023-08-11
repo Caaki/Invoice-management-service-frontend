@@ -48,3 +48,10 @@ export interface CustomerState{
   user: User;
   customer: Customer;
 }
+
+export interface RegisterState{
+  dataState: DataState;
+  registerSuccess?: boolean;
+  error?: string;
+  message?: string;
+}
