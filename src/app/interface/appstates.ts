@@ -1,5 +1,4 @@
 import {DataState} from "../enum/datastate.enum";
-
 import {Events} from "./events";
 import {Role} from "./role";
 import {Customer} from "./customer";
@@ -44,7 +43,6 @@ export interface Page<T> {
 
 
 export interface CustomerState{
-
   user: User;
   customer: Customer;
 }
@@ -54,4 +52,17 @@ export interface RegisterState{
   registerSuccess?: boolean;
   error?: string;
   message?: string;
+}
+
+export type AccountType = 'account'| 'password';
+
+export interface VerifyState{
+  dataState: DataState;
+  verifySuccess?: boolean;
+  error?: string;
+  message?: string;
+  title?: string;
+  type?: AccountType;
+
+
 }

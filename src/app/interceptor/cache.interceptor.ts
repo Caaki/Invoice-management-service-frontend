@@ -18,7 +18,8 @@ export class CacheInterceptor implements HttpInterceptor {
     'http://192.168.1.44:8080/user/verify/password',
     'http://192.168.1.44:8080/user/resetpassword',
     'http://192.168.1.44:8080/user/verify/account',
-    'http://192.168.1.44:8080/user/refresh/token'
+    'http://192.168.1.44:8080/user/refresh/token',
+    'http://192.168.1.44:8080/user/new/password'
   ];
   constructor(private httpCache: HttpCacheService) {}
 
