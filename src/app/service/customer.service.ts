@@ -8,9 +8,7 @@ import {Statistics} from "../interface/statistics";
 import {Customer} from "../interface/customer";
 import {Invoice} from "../interface/invoice";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class CustomerService {
 
 
@@ -101,7 +99,7 @@ export class CustomerService {
       );
 
   handleError(error: HttpErrorResponse): Observable<never> {
-    console.log(error)
+    //console.log(error)
     let errorMessage: string;
     if (error.error instanceof ErrorEvent) {
       errorMessage = `A client error occurred - ${error.error.message}`;

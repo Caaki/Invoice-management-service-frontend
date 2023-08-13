@@ -5,16 +5,15 @@ import {AccountType, CustomHttpResponse, Profile} from "../interface/appstates";
 import {User} from "../interface/user";
 import {Key} from "../enum/Key.enum";
 import {JwtHelperService} from "@auth0/angular-jwt";
+import {HttpCacheService} from "./http-cache.service";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class UserService {
   private jwtHelper = new JwtHelperService();
   private readonly server: string = 'http://192.168.1.44:8080';
 
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private httpCache: HttpCacheService) {
   }
 
   login$ = (email: string, password: string) => <Observable<CustomHttpResponse<Profile>>>
@@ -144,6 +143,7 @@ export class UserService {
   logOut() {
     localStorage.removeItem(Key.TOKEN);
     localStorage.removeItem(Key.REFRESH_TOKEN);
+    this.httpCache.evictAll();
   }
 
   isAuthenticated = (): boolean =>
@@ -153,7 +153,7 @@ export class UserService {
 
 
   handleError(error: HttpErrorResponse): Observable<never> {
-    console.log(error)
+    //console.log(error)
     let errorMessage: string;
     if (error.error instanceof ErrorEvent) {
       errorMessage = `A client error occurred - ${error.error.message}`;

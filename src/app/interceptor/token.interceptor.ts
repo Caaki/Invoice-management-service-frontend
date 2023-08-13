@@ -59,16 +59,14 @@ export class TokenInterceptor implements HttpInterceptor {
 
   private handleRefreshToken(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     if (!this.isTokenRefreshing){
-      console.log("Refreshing token");
+      //console.log("Refreshing token");
       this.isTokenRefreshing = true;
       this.refreshTokenSubject.next(null);
       return this.userService.refreshToken$().pipe(
         switchMap((response) => {
-          console.log("Token refresh Response: " + response);
+          //console.log("Token refresh Response: " + response);
           this.isTokenRefreshing = false;
           this.refreshTokenSubject.next(response);
-          console.log("New token received: " + response.data.access_token);
-          console.log("Sending original request: " + request);
           return next.handle(this.addAuthorizationTokenHeader(request, response.data.access_token));
         })
       );
